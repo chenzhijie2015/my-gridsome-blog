@@ -1,239 +1,116 @@
 <template>
   <div>
-    <section
-      class="page-header"
-      :style="
-        'background-image: linear-gradient(120deg, ' +
-        backgroundColorLeft +
-        ', ' +
-        backgroundColorRight +
-        ');color: ' +
-        fontColor +
-        ';'
-      "
-    >
-      <div style="position: absolute; top: 20px; right: 20px; z-index: 2">
-        <el-tooltip
-          effect="dark"
-          :content="fullButton.full ? '退出' : '全屏'"
-          placement="bottom-end"
-        >
-          <el-button
-            @click="full"
-            :icon="fullButton.full ? 'el-icon-close' : 'el-icon-rank'"
-            circle
-          ></el-button>
-        </el-tooltip>
+      <section class="page-header" :style="'background-image: linear-gradient(120deg, '+backgroundColorLeft+', '+backgroundColorRight+');color: '+fontColor+';'">
+          <div style="position:absolute; top:20px; right:20px; z-index:2;">
+              <el-tooltip effect="dark" :content="fullButton.full?'退出':'全屏'" placement="bottom-end">
+                  <el-button @click="full" :icon="fullButton.full?'el-icon-close':'el-icon-rank'" circle></el-button>
+              </el-tooltip>
+          </div>
+          <div v-for="(item,index) in randomIcon" :key="'ri'+index" :style="'position:absolute; top:'+item.top+'px; left:'+item.left+'px; z-index:1;'">
+              <font :style="'font-size: '+item.size+'px;color:#fff;'">
+                  <b>♪</b>
+              </font>
+          </div>
+          <h1 class="project-name">{{blogTitle}}</h1>
+          <h2 class="project-tagline">{{blogDescribe}}</h2>
+          <a :href="'https://github.com/'+githubUsername" class="btn" target="_blank">GitHub主页</a>
+          <a href="https://github.com/GitHub-Laziji/vblog" class="btn" target="_blank" v-if="!mini">博客源码</a>
+      </section>
+      <div style="position:relative;  z-index:2;margin: auto;margin-top:-30px;width:64rem;">
+          <el-card shadow="never" :body-style="{ padding: '0px' }">
+              <el-row>
+                  <el-col :span="10">
+                      <el-menu @select="selectTopbar" :default-active="topbar.active" mode="horizontal" menu-trigger="click">
+                          <el-submenu index="#more">
+                              <template slot="title">了解博主</template>
+                              <el-menu-item index="#githubHome">github主页</el-menu-item>
+                              <el-menu-item index="#blog">其他博客</el-menu-item>
+                          </el-submenu>
+                          <el-submenu index="#webSites" v-if="webSites.length>0">
+                              <template slot="title">其他网站</template>
+                              <el-menu-item :index="'#webSites-'+index" v-for="(item,index) in webSites" :key="'#webSites'+index">{{item.name}}</el-menu-item>
+                          </el-submenu>
+                      </el-menu>
+                  </el-col>
+                  <el-col :span="8" style="text-align: center;padding: 12px 0px 0px 10px">
+                      <el-row>
+                          <el-col :span="4">
+                              <el-popover placement="top" trigger="hover">
+                                  <div style="text-align: center">
+                                      <el-progress color="#67C23A" type="circle" :percentage="music.volume"></el-progress>
+                                      <br>
+                                      <el-button @click="changeVolume(-10)" icon="el-icon-minus" circle></el-button>
+                                      <el-button @click="changeVolume(10)" icon="el-icon-plus" circle></el-button>
+                                  </div>
+
+                                  <el-button @click="play" id="play" slot="reference" :icon="music.isPlay?'el-icon-refresh':'el-icon-caret-right'" circle></el-button>
+                              </el-popover>
+                          </el-col>
+                          <el-col :span="14" style="padding-left: 20px">
+                              <el-slider @change="changeTime" :format-tooltip="$util.formatTime" :max="music.maxTime" v-model="music.currentTime" style="width: 100%;"></el-slider>
+                          </el-col>
+                          <el-col :span="6" style="padding: 9px 0px 0px 10px;color:#909399;font-size: 13px">
+                              {{$util.formatTime(music.currentTime)}}/{{$util.formatTime(music.maxTime)}}
+                          </el-col>
+                      </el-row>
+
+                      <audio ref="music" loop autoplay v-if="audioAutoPlay">
+                          <source :src="audioUrl" type="audio/mpeg">
+                      </audio>
+                      <audio ref="music" loop v-else>
+                          <source :src="audioUrl" type="audio/mpeg">
+                      </audio>
+                  </el-col>
+                  <el-col :span="4" style="text-align: right;">
+                      <div style="font-size: 20px;color:#606266;margin-top: 5px">
+                          <b>{{githubUsername}}</b>
+                      </div>
+                      <div style="color:#606266;">
+                          <i class="el-icon-location"></i>&nbsp;{{location?location:'未填写地址'}}
+                          <br>
+                      </div>
+                  </el-col>
+                  <el-col :span="2" style="text-align: center;">
+                      <img v-popover:bigAvatar :src="avatarUrl" style="margin-top: 4px;margin-right: 10px;width:52px; height:52px; border-radius:5px; border: 1px solid #EBEEF5"
+                      />
+                      <el-popover ref="bigAvatar" placement="top-start" :title="githubUsername" width="200" trigger="hover">
+                          <i class="el-icon-star-on"></i>&emsp;{{name}}
+                          <br>
+                          <i class="el-icon-location"></i>&emsp;{{location}}
+                          <br>
+                          <img :src="avatarUrl" style="width: 200px;height: 200px;">
+                      </el-popover>
+                  </el-col>
+              </el-row>
+
+          </el-card>
       </div>
-      <div
-        v-for="(item, index) in randomIcon"
-        :key="'ri' + index"
-        :style="
-          'position:absolute; top:' +
-          item.top +
-          'px; left:' +
-          item.left +
-          'px; z-index:1;'
-        "
-      >
-        <font :style="'font-size: ' + item.size + 'px;color:#fff;'">
-          <b>♪</b>
-        </font>
-      </div>
-      <h1 class="project-name">{{ blogTitle }}</h1>
-      <h2 class="project-tagline">{{ blogDescribe }}</h2>
-      <a
-        :href="'https://github.com/' + githubUsername"
-        class="btn"
-        target="_blank"
-        >GitHub主页</a
-      >
-      <a
-        href="https://github.com/GitHub-Laziji/vblog"
-        class="btn"
-        target="_blank"
-        v-if="!mini"
-        >博客源码</a
-      >
-    </section>
-    <div
-      style="
-        position: relative;
-        z-index: 2;
-        margin: auto;
-        margin-top: -30px;
-        width: 64rem;
-      "
-    >
-      <el-card shadow="never" :body-style="{ padding: '0px' }">
+      <section class="main-content">
         <el-row>
-          <el-col :span="10">
-            <el-menu
-              @select="selectTopbar"
-              :default-active="topbar.active"
-              mode="horizontal"
-              menu-trigger="click"
-            >
-              <el-submenu index="#more">
-                <template slot="title">了解博主</template>
-                <el-menu-item index="#githubHome">github主页</el-menu-item>
-                <el-menu-item index="#blog">其他博客</el-menu-item>
-              </el-submenu>
-              <el-submenu index="#webSites" v-if="webSites.length > 0">
-                <template slot="title">其他网站</template>
-                <el-menu-item
-                  :index="'#webSites-' + index"
-                  v-for="(item, index) in webSites"
-                  :key="'#webSites' + index"
-                  >{{ item.name }}</el-menu-item
-                >
-              </el-submenu>
-            </el-menu>
+          <el-col :span="6" style="padding-right: 10px">
+            <sidebar></sidebar>
           </el-col>
-          <el-col
-            :span="8"
-            style="text-align: center; padding: 12px 0px 0px 10px"
-          >
-            <el-row>
-              <el-col :span="4">
-                <el-popover placement="top" trigger="hover">
-                  <div style="text-align: center">
-                    <el-progress
-                      color="#67C23A"
-                      type="circle"
-                      :percentage="music.volume"
-                    ></el-progress>
-                    <br />
-                    <el-button
-                      @click="changeVolume(-10)"
-                      icon="el-icon-minus"
-                      circle
-                    ></el-button>
-                    <el-button
-                      @click="changeVolume(10)"
-                      icon="el-icon-plus"
-                      circle
-                    ></el-button>
-                  </div>
-
-                  <el-button
-                    @click="play"
-                    id="play"
-                    slot="reference"
-                    :icon="
-                      music.isPlay ? 'el-icon-refresh' : 'el-icon-caret-right'
-                    "
-                    circle
-                  ></el-button>
-                </el-popover>
-              </el-col>
-              <el-col :span="14" style="padding-left: 20px">
-                <el-slider
-                  @change="changeTime"
-                  :format-tooltip="$util.formatTime"
-                  :max="music.maxTime"
-                  v-model="music.currentTime"
-                  style="width: 100%"
-                ></el-slider>
-              </el-col>
-              <el-col
-                :span="6"
-                style="
-                  padding: 9px 0px 0px 10px;
-                  color: #909399;
-                  font-size: 13px;
-                "
-              >
-                {{ $util.formatTime(music.currentTime) }}/{{
-                  $util.formatTime(music.maxTime)
-                }}
-              </el-col>
-            </el-row>
-
-            <audio ref="music" loop autoplay v-if="audioAutoPlay">
-              <source :src="audioUrl" type="audio/mpeg" />
-            </audio>
-            <audio ref="music" loop v-else>
-              <source :src="audioUrl" type="audio/mpeg" />
-            </audio>
-          </el-col>
-          <el-col :span="4" style="text-align: right">
-            <div style="font-size: 20px; color: #606266; margin-top: 5px">
-              <b>{{ githubUsername }}</b>
-            </div>
-            <div style="color: #606266">
-              <i class="el-icon-location"></i>&nbsp;{{
-                location ? location : "未填写地址"
-              }}
-              <br />
-            </div>
-          </el-col>
-          <el-col :span="2" style="text-align: center">
-            <img
-              v-popover:bigAvatar
-              :src="avatarUrl"
-              style="
-                margin-top: 4px;
-                margin-right: 10px;
-                width: 52px;
-                height: 52px;
-                border-radius: 5px;
-                border: 1px solid #ebeef5;
-              "
-            />
-            <el-popover
-              ref="bigAvatar"
-              placement="top-start"
-              :title="githubUsername"
-              width="200"
-              trigger="hover"
-            >
-              <i class="el-icon-star-on"></i>&emsp;{{ name }}
-              <br />
-              <i class="el-icon-location"></i>&emsp;{{ location }}
-              <br />
-              <img :src="avatarUrl" style="width: 200px; height: 200px" />
-            </el-popover>
+          <el-col :span="18" style="padding-left: 10px">
+            <slot></slot>
           </el-col>
         </el-row>
-      </el-card>
-    </div>
-    <section class="main-content">
-      <el-row>
-        <el-col :span="6" style="padding-right: 10px">
-          <sidebar></sidebar>
-        </el-col>
-        <el-col :span="18" style="padding-left: 10px">
-          <app-main></app-main>
-        </el-col>
-      </el-row>
-    </section>
-    <section class="foot">
-      <foot></foot>
-    </section>
+      </section>
+      <section class="foot">
+          <foot></foot>
+      </section>
+
+
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import Sidebar from "../components/Sidebar";
-import AppMain from "../components/AppMain";
 import Foot from "../components/Foot";
 
 export default {
   data() {
     return {
-      githubUsername: "GitHub-Laziji",
-      blogTitle: "Laziji",
-      blogDescribe: "欢迎来到辣子鸡的个人博客。",
-      htmlTitle: "辣子鸡的博客",
-      fontColor: "#ffffff",
-      useBackgroundImage: false,
-      backgroundColorLeft: "#2690F9",
-      backgroundColorRight: "#FC2D2D",
-      audioUrl:
-        "http://sc1.111ttt.cn:8282/2018/1/03m/13/396131232171.m4a?tflag=1519095601&pin=6cd414115fdb9a950d827487b16b5f97#.mp3",
-      mini: false,
-      webSites: [{ name: "v2ex", url: "https://www.v2ex.com/member/laziji" }],
       music: {
         isPlay: false,
         currentTime: 0,
@@ -249,9 +126,29 @@ export default {
       randomIcon: [],
     };
   },
+  computed: {
+    ...mapGetters([
+          'githubUsername',
+          'blogTitle',
+          'blogDescribe',
+          'avatarUrl',
+          'name',
+          'location',
+          'blog',
+          'fontColor',
+          'useBackgroundImage',
+          'backgroundColorLeft',
+          'backgroundColorRight',
+          'audioUrl',
+          'mini',
+          'followersTotal',
+          'followingTotal',
+          'audioAutoPlay',
+          'webSites'
+      ])
+  },
   components: {
     Sidebar,
-    AppMain,
     Foot,
   },
   methods: {

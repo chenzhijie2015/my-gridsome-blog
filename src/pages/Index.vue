@@ -1,27 +1,36 @@
 <template>
   <Layout>
-
-    <!-- Learn how to use images here: https://gridsome.org/docs/images -->
-    <g-image alt="Example image" src="~/favicon.png" width="135" />
-
-    <h1>Hello, world!</h1>
-
-    <p>
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur excepturi labore tempore expedita, et iste tenetur suscipit explicabo! Dolores, aperiam non officia eos quod asperiores
-    </p>
-
-    <p class="home-links">
-      <a href="https://gridsome.org/docs/" target="_blank" rel="noopener">Gridsome Docs</a>
-      <a href="https://github.com/gridsome/gridsome" target="_blank" rel="noopener">GitHub</a>
-    </p>
-
+    <template v-if="$store.state.user.sidebar === '/user/new'">
+      <new></new>
+    </template>
+    <template v-else-if="$store.state.user.sidebar === '/user/social'">
+      <blog></blog>
+    </template>
+    <template v-else-if="$store.state.user.sidebar === '/user/blog'">
+      <social></social>
+    </template>
+    <template v-else-if="$store.state.user.sidebar === '/user/project'">
+      <project></project>
+    </template>
   </Layout>
 </template>
 
 <script>
+import New from '@/components/new/Main.vue'
+import Blog from '@/components/blog/Main.vue'
+import Social from '@/components/social/Main.vue'
+import Project from '@/components/project/Main.vue'
 export default {
   metaInfo: {
-    title: 'Hello, world!'
+    title: ''
+  },
+  components: {
+    New,
+    Blog,
+    Social,
+    Project
+  },
+  created () {
   }
 }
 </script>
