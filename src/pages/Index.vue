@@ -22,7 +22,7 @@ import Social from '@/components/social/Main.vue'
 import Project from '@/components/project/Main.vue'
 export default {
   metaInfo: {
-    title: ''
+    title: '辣子鸡的博客-最新动态'
   },
   components: {
     New,

@@ -24,6 +24,14 @@ export default function (Vue, { router, head, isClient, appOptions }) {
       return mavonEditor.markdownIt.render(value)
   }
 
+  Vue.prototype.$setTitle = function (title) {
+      if (title) {
+          document.title = store.state.configuration.htmlTitle + " - " + title
+      } else {
+          document.title = store.state.configuration.htmlTitle
+      }
+  }
+
   // Set default layout as a global component
   Vue.component('Layout', DefaultLayout)
 

@@ -4,7 +4,7 @@ const configuration = {
         githubUsername: "GitHub-Laziji",
         blogTitle: "Laziji",
         blogDescribe: "欢迎来到辣子鸡的个人博客。",
-        htmlTitle: "",
+        htmlTitle: "辣子鸡的博客",
         fontColor: "",
         useBackgroundImage: false,
         backgroundColorLeft: "",

@@ -3,7 +3,7 @@
     <el-card shadow="never">
       <el-menu :default-active="active" @select="onSelect">
         <el-menu-item
-          v-for="item in constantRouterMap"
+          v-for="(item, index) in constantRouterMap"
           v-if="
             item.meta &&
             item.meta.type == 'user' &&
@@ -11,7 +11,7 @@
             (!mini || !item.meta.mini)
           "
           :key="item.path"
-          :index="item.path"
+          :index="index.toString()"
         >
           <i :class="item.meta.icon"></i>
           <span slot="title">{{ item.meta.title }}</span>
@@ -61,7 +61,7 @@ export default {
   data() {
     return {
       constantRouterMap,
-      active: "",
+      active: "/user/new",
       parentUrl: "",
       menuList: [],
     };
@@ -69,17 +69,16 @@ export default {
   computed: {
     ...mapGetters(["token", "githubUsername", "mini"]),
   },
-  mounted () {
-    // let arr = this.$route.path.split("/");
-    // this.active = "/" + arr[1] + "/" + arr[2];
-    this.active = '/user/new'
-    this.$store.commit('SET_SIDEBAR', this.active)
+  created () {
+    this.onSelect('0')
   },
   methods: {
-    onSelect(p) {
-      // console.log(p)
-      this.$store.commit('SET_SIDEBAR', p)
-      // this.$router.push(p);
+    onSelect(index) {
+      const item = this.constantRouterMap[parseInt(index)]
+      // console.log(item)
+      this.active = index
+      this.$setTitle(item.meta.title)
+      this.$store.commit('SET_SIDEBAR', item.path)
     },
     openTokenDialog() {
       this.$refs.tokenDialog.open(() => {});
